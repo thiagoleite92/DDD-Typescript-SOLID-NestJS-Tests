@@ -19,6 +19,9 @@
     "typescript": "^5.1.6"
   },
   "devDependencies": {
+    "@rocketseat/eslint-config": "^2.1.0",
+    "eslint": "^8.49.0",
+    "eslint-plugin-vitest-globals": "^1.4.0",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.33.0"
   }
