@@ -15,7 +15,7 @@ export class InMemoryQuestionsRepository implements QuestionsRepository {
     return this.items.find((item) => item.id.toString() === questionId) ?? null
   }
 
-  async findManyRecent({ page }: PaginationParams) {
+  async fetchManyRecent({ page }: PaginationParams) {
     const questions = this.items
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(page - 1 * 20, page * 20)
