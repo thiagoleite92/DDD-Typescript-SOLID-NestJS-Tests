@@ -40,6 +40,6 @@ describe('Use Case -> Fetch Questions Most', () => {
 
     const { questions } = await sut.execute({ page: 2 })
 
-    expect(questions).toHaveLength(2)
+    expect(questions).toHaveLength(3)
   })
 })
