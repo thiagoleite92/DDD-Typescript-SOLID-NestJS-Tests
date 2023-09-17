@@ -2,6 +2,8 @@ import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questio
 import { GetQuestionBySlugUseCase } from './get-question-by-slug'
 import { makeQuestion } from 'test/factories/make-question'
 import { Slug } from '../../enterprise/entities/value-object/slug'
+import { Question } from '../../enterprise/entities/questions'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
 let sut: GetQuestionBySlugUseCase
@@ -18,9 +20,22 @@ describe('Use Case -> Get Question By Slug', () => {
     })
     await inMemoryQuestionsRepository.create(newQuestion)
 
-    const { question } = await sut.execute({ slug: 'example-question' })
+    const result = await sut.execute({ slug: 'example-question' })
 
-    expect(question?.id).toBeTruthy()
-    expect(question?.title).toEqual(newQuestion.title)
+    expect(result.isRight()).toBe(true)
+    expect(result?.value?.question?.id).toEqual(newQuestion.id)
+    expect(result?.value?.question).toBeInstanceOf(Question)
+  })
+
+  it('should be able to find a question by slug ', async () => {
+    const newQuestion = makeQuestion({
+      slug: Slug.create('example-question'),
+    })
+    await inMemoryQuestionsRepository.create(newQuestion)
+
+    const result = await sut.execute({ slug: 'another-slug-example' })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result?.value).toBeInstanceOf(ResourceNotFoundError)
   })
 })

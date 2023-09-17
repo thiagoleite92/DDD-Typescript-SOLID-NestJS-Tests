@@ -2,6 +2,8 @@ import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-r
 import { makeAnswer } from 'test/factories/make-answer'
 import { EditAnswerUseCase } from './edit-answer'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { NotAllowedError } from './errors/not-allowed-error'
+import { Answer } from '../../enterprise/entities/answers'
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository
 let sut: EditAnswerUseCase
@@ -16,7 +18,7 @@ describe('Use Case -> Edit Answer', () => {
     const newAnswer = makeAnswer({ authorId: new UniqueEntityID('123') })
     await inMemoryAnswersRepository.create(newAnswer)
 
-    await sut.execute({
+    const result = await sut.execute({
       content: 'Conteúdo editado',
       authorId: newAnswer.authorId.toString(),
       answerId: newAnswer.id.toString(),
@@ -31,6 +33,9 @@ describe('Use Case -> Edit Answer', () => {
     expect(inMemoryAnswersRepository.items[0]).toMatchObject({
       content: 'Conteúdo editado',
     })
+
+    expect(result.isRight()).toBe(true)
+    expect(result.value?.answer).toBeInstanceOf(Answer)
   })
 
   it('should not be able to edit a answer from another user', async () => {
@@ -39,13 +44,13 @@ describe('Use Case -> Edit Answer', () => {
     })
     await inMemoryAnswersRepository.create(newAnswer)
 
-    expect(
-      async () =>
-        await sut.execute({
-          answerId: newAnswer.id.toString(),
-          authorId: 'author-2',
-          content: 'new content',
-        }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      answerId: newAnswer.id.toString(),
+      authorId: 'author-2',
+      content: 'new content',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

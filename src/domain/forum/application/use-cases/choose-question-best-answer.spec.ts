@@ -4,6 +4,8 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { ChooseQuestionBestAnswerUseCase } from './choose-question-best-answer'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
+import { NotAllowedError } from './errors/not-allowed-error'
+import { Question } from '../../enterprise/entities/questions'
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
 let inMemoryAnswersRepository: InMemoryAnswersRepository
@@ -27,12 +29,13 @@ describe('Use Case -> Edit Answer', () => {
     await inMemoryQuestionsRepository.create(question)
     await inMemoryAnswersRepository.create(answer)
 
-    await sut.execute({
+    const result = await sut.execute({
       answerId: answer.id.toString(),
       authorId: question.authorId.toString(),
     })
 
-    expect(inMemoryQuestionsRepository.items[0].bestAnswerId).toEqual(answer.id)
+    expect(result.isRight()).toBe(true)
+    expect(result.value?.question).toBeInstanceOf(Question)
   })
 
   it('should be able to choose question best answer by id by wrong author question Id', async () => {
@@ -43,11 +46,12 @@ describe('Use Case -> Edit Answer', () => {
     await inMemoryQuestionsRepository.create(question)
     await inMemoryAnswersRepository.create(answer)
 
-    expect(async () => {
-      await sut.execute({
-        answerId: answer.id.toString(),
-        authorId: 'author-2',
-      })
-    }).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      answerId: answer.id.toString(),
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

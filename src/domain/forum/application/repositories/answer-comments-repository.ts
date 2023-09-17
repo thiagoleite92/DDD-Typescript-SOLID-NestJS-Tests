@@ -3,7 +3,7 @@ import { AnswerComment } from '../../enterprise/entities/answer-comment'
 
 export interface AnswerCommentsRepository {
   findById(id: string): Promise<AnswerComment | null>
-  findManyByAnswer(
+  findManyByAnswerId(
     answer: string,
     params: PaginationParams,
   ): Promise<AnswerComment[]>

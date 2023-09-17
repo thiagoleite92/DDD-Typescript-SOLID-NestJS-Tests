@@ -1,7 +1,8 @@
-import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
-import { DeleteQuestionUseCase } from './delete-question'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
+import { NotAllowedError } from './errors/not-allowed-error'
+import { DeleteQuestionUseCase } from './delete-question'
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
 let sut: DeleteQuestionUseCase
@@ -30,12 +31,12 @@ describe('Use Case -> Delete Question', () => {
     })
     await inMemoryQuestionsRepository.create(newQuestion)
 
-    expect(
-      async () =>
-        await sut.execute({
-          questionId: newQuestion.id.toString(),
-          authorId: 'author-2',
-        }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      questionId: newQuestion.id.toString(),
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

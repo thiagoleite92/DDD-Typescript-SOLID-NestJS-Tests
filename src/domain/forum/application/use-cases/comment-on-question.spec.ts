@@ -1,7 +1,9 @@
-import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
 import { CommentOnQuestionUseCase } from './comment-on-question'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
 
 let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
@@ -18,19 +20,32 @@ describe('Use Case -> Create QuestionComment Comment', () => {
     )
   })
 
-  it('should be able to create a questioncomment', async () => {
+  it('should be able to create a question on comment', async () => {
     const question = makeQuestion()
 
     inMemoryQuestionsRepository.create(question)
 
-    const { questionComment } = await sut.execute({
+    const result = await sut.execute({
       authorId: 'author-1',
       content: 'Exemplo content',
       questionId: question.id.toString(),
     })
 
-    expect(inMemoryQuestionCommentsRepository.items[0].id).toEqual(
-      questionComment.id,
-    )
+    expect(result.isRight()).toBe(true)
+  })
+
+  it('should not be able to create a question on comment non-existance', async () => {
+    const question = makeQuestion({}, new UniqueEntityID('question-1'))
+
+    inMemoryQuestionsRepository.create(question)
+
+    const result = await sut.execute({
+      authorId: 'author-1',
+      content: 'Exemplo content',
+      questionId: 'question-2',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 })

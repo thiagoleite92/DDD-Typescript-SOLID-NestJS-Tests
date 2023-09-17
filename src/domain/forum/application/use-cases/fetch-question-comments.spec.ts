@@ -1,7 +1,7 @@
-import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
 import { FetchQuestionsCommentsUseCase } from './fetch-question-comments'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { makeQuestionComment } from 'test/factories/make-question-comment'
+import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
 
 let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository
 
@@ -27,12 +27,13 @@ describe('Use Case -> Fetch Question Comments', () => {
       makeQuestionComment({ questionId: new UniqueEntityID('question-1') }),
     )
 
-    const { questionComments } = await sut.execute({
+    const result = await sut.execute({
       questionId: 'question-1',
       page: 1,
     })
 
-    expect(questionComments).toHaveLength(3)
+    expect(result.isRight()).toBe(true)
+    expect(result?.value?.questionComments).toHaveLength(3)
   })
 
   it('should be able to fetch questions comments paginated', async () => {
@@ -42,11 +43,12 @@ describe('Use Case -> Fetch Question Comments', () => {
       )
     }
 
-    const { questionComments } = await sut.execute({
+    const result = await sut.execute({
       questionId: 'question-1',
       page: 2,
     })
 
-    expect(questionComments).toHaveLength(3)
+    expect(result.isRight()).toBe(true)
+    expect(result?.value?.questionComments).toHaveLength(3)
   })
 })

@@ -24,9 +24,10 @@ describe('Use Case -> Fetch Questions Most', () => {
       makeQuestion({ createdAt: new Date(2023, 0, 23) }),
     )
 
-    const { questions } = await sut.execute({ page: 1 })
+    const result = await sut.execute({ page: 1 })
 
-    expect(questions).toEqual([
+    expect(result.isRight()).toBe(true)
+    expect(result.value?.questions).toEqual([
       expect.objectContaining({ createdAt: new Date(2023, 0, 23) }),
       expect.objectContaining({ createdAt: new Date(2023, 0, 22) }),
       expect.objectContaining({ createdAt: new Date(2023, 0, 18) }),
@@ -38,8 +39,9 @@ describe('Use Case -> Fetch Questions Most', () => {
       await inMemoryQuestionsRepository.create(makeQuestion())
     }
 
-    const { questions } = await sut.execute({ page: 2 })
+    const result = await sut.execute({ page: 2 })
 
-    expect(questions).toHaveLength(3)
+    expect(result.isRight()).toBe(true)
+    expect(result.value?.questions).toHaveLength(3)
   })
 })
