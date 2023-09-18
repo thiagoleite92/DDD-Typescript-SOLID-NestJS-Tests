@@ -14,6 +14,7 @@ export interface QuestionProps {
   attachments: QuestionAttachmentList
   createdAt: Date
   updatedAt?: Date
+  attachmentIds: string[]
 }
 
 export class Question extends AggregateRoot<QuestionProps> {

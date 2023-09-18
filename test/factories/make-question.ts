@@ -15,6 +15,7 @@ export const makeQuestion = (
       authorId: new UniqueEntityID(),
       title: faker.lorem.sentence(),
       content: faker.lorem.text(),
+      attachmentIds: [],
       ...override,
     },
     id,
