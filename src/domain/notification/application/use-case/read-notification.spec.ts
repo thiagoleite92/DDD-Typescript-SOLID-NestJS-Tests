@@ -27,6 +27,9 @@ describe('Use Case -> Read notification', () => {
 
     expect(result.isRight()).toBe(true)
     expect(inMemoryNotificationsRepository.items[0].readAt).toBeDefined()
+    expect(inMemoryNotificationsRepository.items[0].readAt).toEqual(
+      expect.any(Date),
+    )
   })
 
   it('should not be able to read a notification, if not exists', async () => {
